@@ -19,6 +19,7 @@ import { CreateProduct } from '../../applications/business-cases/create-product'
 import { DeleteProduct } from '../../applications/business-cases/delete-product';
 import { GetProductsDto } from '../dto/get-products.dto';
 import { GetProducts } from '../../applications/business-cases/get-products';
+import { ProductDto } from '../dto/product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -30,7 +31,7 @@ export class ProductsController {
   ) {}
 
   @Get()
-  async findAll(@Query() query: GetProductsDto) {
+  async findAll(@Query() query: GetProductsDto): Promise<ProductDto[]> {
     try {
       return await this.getProducts.execute(query);
     } catch (error) {
@@ -44,7 +45,10 @@ export class ProductsController {
 
   @Patch(':id/stock')
   @HttpCode(200)
-  async update(@Param('id') id: number, @Body() body: UpdateProductStockDto) {
+  async update(
+    @Param('id') id: number,
+    @Body() body: UpdateProductStockDto,
+  ): Promise<ProductDto> {
     try {
       return await this.updateProductStock.execute(id, body.stock);
     } catch (error: unknown) {
@@ -57,8 +61,8 @@ export class ProductsController {
   }
 
   @Post()
-  @HttpCode(201)
-  async create(@Body() body: CreateProductDto) {
+  @HttpCode(200)
+  async create(@Body() body: CreateProductDto): Promise<ProductDto> {
     try {
       return await this.createProduct.execute(body);
     } catch (error: unknown) {
@@ -70,7 +74,7 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param('id') id: number) {
+  async delete(@Param('id') id: number): Promise<void> {
     try {
       return await this.deleteProduct.execute(id);
     } catch (error: unknown) {

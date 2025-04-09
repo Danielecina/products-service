@@ -1,19 +1,21 @@
-import { Table, Column, Model } from 'sequelize-typescript';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
-@Table
+@Table({ tableName: 'products' })
 export class Product extends Model {
-  @Column({ primaryKey: true, autoIncrement: true })
-  Id: number;
-
-  @Column({ unique: true })
+  @Column({
+    type: DataType.STRING,
+    unique: true,
+  })
   productToken: string;
 
-  @Column
+  @Column({
+    type: DataType.STRING,
+  })
   name: string;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: DataType.DECIMAL(10, 2) })
   price: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: DataType.INTEGER })
   stock: number;
 }

@@ -14,8 +14,8 @@ export class DeleteProduct {
     try {
       await this.product.destroy<ProductEntity>({ where: { id } });
     } catch (error) {
-      console.error('Failed to create product', error);
-      throw new Error('Failed to create product');
+      console.error('Failed to delete product', error);
+      throw new Error('Failed to delete product');
     }
   }
 }

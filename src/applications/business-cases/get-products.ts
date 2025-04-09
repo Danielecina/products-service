@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
 import { Product as ProductEntity } from '../../domains/entities/product.entity';
-import { GetProductsDto } from 'src/presentation/dto/get-products.dto';
+import { GetProductsDto } from '../../presentation/dto/get-products.dto';
 
 @Injectable()
 export class GetProducts {
@@ -11,9 +11,9 @@ export class GetProducts {
     private product: typeof ProductEntity,
   ) {}
 
-  async execute({ page, perPage }: GetProductsDto): Promise<void> {
+  async execute({ page, perPage }: GetProductsDto) {
     try {
-      await this.product.findAll<ProductEntity>({
+      return await this.product.findAll<ProductEntity>({
         offset: (page - 1) * perPage,
         limit: perPage,
       });

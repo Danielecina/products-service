@@ -70,12 +70,12 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param() id: number) {
+  async delete(@Param('id') id: number) {
     try {
       return await this.deleteProduct.execute(id);
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Failed to create product';
+        error instanceof Error ? error.message : 'Failed to delete product';
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

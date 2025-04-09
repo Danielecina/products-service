@@ -1,9 +1,10 @@
 import { Sequelize } from 'sequelize-typescript';
-import { Product } from './domains/products/product.entity';
+import { Product } from '../../domains/entities/product.entity';
 
+export const SEQUELIZE = 'SEQUELIZE';
 export const databaseProviders = [
   {
-    provide: 'SEQUELIZE',
+    provide: SEQUELIZE,
     useFactory: async () => {
       const sequelize = new Sequelize({
         dialect: 'mysql',

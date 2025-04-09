@@ -2,7 +2,7 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
-import { CatchEverythingFilter } from './http-exception.filter';
+import { CatchEverythingFilter } from './shared/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

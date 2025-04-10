@@ -1,7 +1,5 @@
 import { PickType } from '@nestjs/mapped-types';
 
-import { CreateProductDto } from './create-product.dto';
+import { ProductDto } from './product.dto';
 
-export class UpdateProductStockDto extends PickType(CreateProductDto, [
-  'stock',
-]) {}
+export class UpdateProductStockDto extends PickType(ProductDto, ['stock']) {}

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from 'nestjs-pino';
 
 // databases
 import { DatabaseModule } from './infrastructure/databases/database.module';
@@ -14,9 +15,13 @@ import { DeleteProduct } from './applications/business-cases/delete-product';
 import { GetProducts } from './applications/business-cases/get-products';
 import { SequelizeModule } from '@nestjs/sequelize';
 
+console.log('DB_HOST', process.env.DB_HOST);
+console.log('DB_PORT', process.env.DB_PORT);
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    LoggerModule.forRoot(),
     SequelizeModule.forRoot({
       dialect: 'mysql',
       host: process.env.DB_HOST,
@@ -24,8 +29,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      autoLoadModels: true, // Carica automaticamente i modelli
-      synchronize: true, // Sincronizza automaticamente il database (solo per sviluppo)
+      autoLoadModels: true,
+      synchronize: true,
     }),
     DatabaseModule,
   ],

@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  Logger,
   Param,
   Patch,
   Post,
@@ -23,6 +24,8 @@ import { ProductDto } from '../dto/product.dto';
 
 @Controller('products')
 export class ProductsController {
+  private readonly logger = new Logger(ProductsController.name);
+
   constructor(
     private updateProductStock: UpdateProductStock,
     private createProduct: CreateProduct,
@@ -35,7 +38,7 @@ export class ProductsController {
     try {
       return await this.getProducts.execute(query);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      this.logger.error('Error fetching products:', (error as Error)?.message);
       throw new HttpException(
         'Failed to fetch products',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -56,6 +59,14 @@ export class ProductsController {
         error instanceof Error
           ? error.message
           : 'Failed to update product stock';
+
+      if (
+        errorMessage ===
+        UpdateProductStock.ERROR_TYPE.PRODUCT_TO_UPDATE_NOT_FOUND
+      ) {
+        throw new HttpException(errorMessage, HttpStatus.NOT_FOUND);
+      }
+
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -80,6 +91,11 @@ export class ProductsController {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to delete product';
+
+      if (errorMessage === DeleteProduct.ERROR_TYPE.PRODUCT_NOT_FOUND) {
+        throw new HttpException(errorMessage, HttpStatus.NOT_FOUND);
+      }
+
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

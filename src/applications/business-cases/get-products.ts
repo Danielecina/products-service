@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
 import { Product as ProductEntity } from '../../domains/entities/product.entity';
@@ -7,6 +7,8 @@ import { ProductDto } from 'src/presentation/dto/product.dto';
 
 @Injectable()
 export class GetProducts {
+  private readonly logger = new Logger(GetProducts.name);
+
   constructor(
     @InjectModel(ProductEntity)
     private product: typeof ProductEntity,
@@ -18,9 +20,18 @@ export class GetProducts {
         offset: (page - 1) * perPage,
         limit: perPage,
       });
+
+      this.logger.debug(
+        { itemsLenght: products?.length },
+        'retrieved products',
+      );
+
       return products.map((product) => this.mapToResponseDto(product.toJSON()));
     } catch (error) {
-      console.error('Failed to retrieve products', error);
+      this.logger.error(
+        'Failed to retrieve products',
+        (error as Error)?.message,
+      );
       throw new Error('Failed to retrieve products');
     }
   }

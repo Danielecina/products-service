@@ -1,19 +1,9 @@
-import { IsDecimal, IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { ProductDto } from './product.dto';
+import { PickType } from '@nestjs/mapped-types';
 
-export class CreateProductDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsString()
-  @IsNotEmpty()
-  productToken: string;
-
-  @IsDecimal()
-  @IsNotEmpty()
-  price: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  stock: number;
-}
+export class CreateProductDto extends PickType(ProductDto, [
+  'name',
+  'productToken',
+  'price',
+  'stock',
+]) {}

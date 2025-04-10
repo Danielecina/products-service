@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
 import { Product as ProductEntity } from '../../domains/entities/product.entity';
@@ -7,6 +7,8 @@ import { ProductDto } from 'src/presentation/dto/product.dto';
 
 @Injectable()
 export class CreateProduct {
+  private readonly logger = new Logger(CreateProduct.name);
+
   constructor(
     @InjectModel(ProductEntity)
     private product: typeof ProductEntity,
@@ -26,7 +28,10 @@ export class CreateProduct {
 
       return this.mapToResponseDto(createdProduct.toJSON());
     } catch (error) {
-      console.error('Failed to create product', error);
+      this.logger.error(
+        { message: (error as Error)?.message },
+        'Failed to create product',
+      );
       throw new Error('Failed to create product');
     }
   }

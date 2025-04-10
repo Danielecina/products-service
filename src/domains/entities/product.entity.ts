@@ -21,7 +21,7 @@ export class Product extends Model {
   name: string;
 
   @Column({ type: DataType.DECIMAL(10, 2) })
-  price: number;
+  price: string;
 
   @Column({ type: DataType.INTEGER })
   stock: number;

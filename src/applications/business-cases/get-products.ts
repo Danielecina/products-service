@@ -5,6 +5,10 @@ import { Product as ProductEntity } from '../../domains/entities/product.entity'
 import { GetProductsDto } from '../../presentation/dto/get-products.dto';
 import { ProductDto } from 'src/presentation/dto/product.dto';
 
+const ERROR_TYPE = {
+  PRODUCTS_RETRIEVE_FAILED: 'Failed to retrieve products',
+} as const;
+
 @Injectable()
 export class GetProducts {
   private readonly logger = new Logger(GetProducts.name);
@@ -13,6 +17,8 @@ export class GetProducts {
     @InjectModel(ProductEntity)
     private product: typeof ProductEntity,
   ) {}
+
+  static ERROR_TYPE = ERROR_TYPE;
 
   async execute({ page, perPage }: GetProductsDto): Promise<ProductDto[]> {
     try {
@@ -29,10 +35,10 @@ export class GetProducts {
       return products.map((product) => this.mapToResponseDto(product.toJSON()));
     } catch (error) {
       this.logger.error(
-        'Failed to retrieve products',
+        ERROR_TYPE.PRODUCTS_RETRIEVE_FAILED,
         (error as Error)?.message,
       );
-      throw new Error('Failed to retrieve products');
+      throw new Error(ERROR_TYPE.PRODUCTS_RETRIEVE_FAILED);
     }
   }
 

@@ -7,7 +7,7 @@ import { UpdateProductStock } from '../../../applications/business-cases/update-
 import { CreateProduct } from '../../../applications/business-cases/create-product';
 import { DeleteProduct } from '../../../applications/business-cases/delete-product';
 import { GetProducts } from '../../../applications/business-cases/get-products';
-import { CreateProductDto } from '../../../presentation/dto/create-product.dto';
+import { CreateProductDto } from '../../dto/create-product.dto';
 import { ProductsController } from '../products.controller';
 
 describe('Products Controller Integration Tests', () => {
@@ -67,21 +67,49 @@ describe('Products Controller Integration Tests', () => {
     await app.init();
   });
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   afterAll(async () => {
     await app.close();
   });
 
   describe('GET /products', () => {
-    it('200 - should return a list of products', async () => {
+    test('200 - should return a list of products', async () => {
       const response = await request(app.getHttpServer()).get('/products');
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
       expect(mockGetProducts.execute).toHaveBeenCalled();
     });
+
+    test('500', async () => {
+      mockGetProducts.execute.mockRejectedValueOnce(
+        new Error(GetProducts.ERROR_TYPE.PRODUCTS_RETRIEVE_FAILED),
+      );
+      const response = await request(app.getHttpServer()).get('/products');
+
+      expect(response.body).toEqual({
+        statusCode: 500,
+        message: ProductsController.ERROR_TYPE.PRODUCTS_RETRIEVE_FAILED,
+      });
+      expect(mockGetProducts.execute).toHaveBeenCalled();
+    });
   });
 
   describe('POST /products', () => {
-    it('200 - should create a new product', async () => {
+    beforeEach(() => {
+      mockCreateProduct.execute.mockReset();
+    });
+
+    test('200 - should create a new product', async () => {
+      mockCreateProduct.execute.mockImplementation((productData) => {
+        return Promise.resolve({
+          id: 1,
+          ...productData,
+        });
+      });
+
       const newProduct: CreateProductDto = {
         name: 'Test Product',
         productToken: 'token123',
@@ -95,16 +123,16 @@ describe('Products Controller Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        id: expect.any(Number) as number,
+        id: 1,
         ...newProduct,
       });
 
       expect(mockCreateProduct.execute).toHaveBeenCalledWith(newProduct);
     });
 
-    it('400 - should return invalid product data', async () => {
+    test('400 - should return invalid product data', async () => {
       mockCreateProduct.execute.mockRejectedValueOnce(
-        new Error('Validation failed'),
+        new Error(CreateProduct.ERROR_TYPE.PRODUCT_CREATE_FAILED),
       );
 
       const invalidProduct: Partial<CreateProductDto> = {
@@ -117,9 +145,36 @@ describe('Products Controller Integration Tests', () => {
 
       expect(response.status).toBe(400);
     });
+
+    test('500', async () => {
+      mockCreateProduct.execute.mockRejectedValueOnce(
+        new Error(CreateProduct.ERROR_TYPE.PRODUCT_CREATE_FAILED),
+      );
+
+      const newProduct: CreateProductDto = {
+        name: 'Test Product',
+        productToken: 'token123',
+        price: '100.00',
+        stock: 10,
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/products')
+        .send(newProduct);
+
+      expect(response.body).toEqual({
+        statusCode: 500,
+        message: ProductsController.ERROR_TYPE.PRODUCT_CREATE_FAILED,
+      });
+      expect(mockCreateProduct.execute).toHaveBeenCalled();
+    });
   });
 
   describe('PATCH /products/:id/stock', () => {
+    beforeEach(() => {
+      mockUpdateProductStock.execute.mockReset();
+    });
+
     it('200 - should update the stock of a product', async () => {
       const productId = 1;
       const updateStockDto = {
@@ -168,6 +223,26 @@ describe('Products Controller Integration Tests', () => {
         .send(invalidStockDto);
 
       expect(response.status).toBe(400);
+    });
+
+    it('500', async () => {
+      mockUpdateProductStock.execute.mockRejectedValueOnce(
+        new Error(UpdateProductStock.ERROR_TYPE.PRODUCT_UPDATE_FAILED),
+      );
+
+      const productId = 1;
+      const updateStockDto = {
+        stock: 50,
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/products/${productId}/stock`)
+        .send(updateStockDto);
+
+      expect(response.body).toEqual({
+        statusCode: 500,
+        message: ProductsController.ERROR_TYPE.PRODUCT_STOCK_UPDATE_FAILED,
+      });
     });
   });
 

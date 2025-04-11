@@ -22,6 +22,13 @@ import { GetProductsDto } from '../dto/get-products.dto';
 import { GetProducts } from '../../applications/business-cases/get-products';
 import { ProductDto } from '../dto/product.dto';
 
+const ERROR_TYPE = {
+  PRODUCTS_RETRIEVE_FAILED: 'Failed to retrieve products',
+  PRODUCT_CREATE_FAILED: 'Failed to create product',
+  PRODUCT_DELETE_FAILED: 'Failed to delete product',
+  PRODUCT_STOCK_UPDATE_FAILED: 'Failed to update product stock',
+} as const;
+
 @Controller('products')
 export class ProductsController {
   private readonly logger = new Logger(ProductsController.name);
@@ -33,16 +40,19 @@ export class ProductsController {
     private getProducts: GetProducts,
   ) {}
 
+  static ERROR_TYPE = ERROR_TYPE;
+
   @Get()
   async findAll(@Query() query: GetProductsDto): Promise<ProductDto[]> {
     try {
       return await this.getProducts.execute(query);
     } catch (error) {
-      this.logger.error('Error fetching products:', (error as Error)?.message);
-      throw new HttpException(
-        'Failed to fetch products',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : ERROR_TYPE.PRODUCTS_RETRIEVE_FAILED;
+
+      throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -58,7 +68,7 @@ export class ProductsController {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Failed to update product stock';
+          : ERROR_TYPE.PRODUCT_STOCK_UPDATE_FAILED;
 
       if (
         errorMessage ===
@@ -76,9 +86,12 @@ export class ProductsController {
   async create(@Body() body: CreateProductDto): Promise<ProductDto> {
     try {
       return await this.createProduct.execute(body);
-    } catch (error: unknown) {
+    } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Failed to create product';
+        error instanceof Error
+          ? error.message
+          : ERROR_TYPE.PRODUCT_CREATE_FAILED;
+
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -90,7 +103,9 @@ export class ProductsController {
       return await this.deleteProduct.execute(id);
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Failed to delete product';
+        error instanceof Error
+          ? error.message
+          : ERROR_TYPE.PRODUCT_DELETE_FAILED;
 
       if (errorMessage === DeleteProduct.ERROR_TYPE.PRODUCT_NOT_FOUND) {
         throw new HttpException(errorMessage, HttpStatus.NOT_FOUND);

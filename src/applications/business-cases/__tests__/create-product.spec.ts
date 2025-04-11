@@ -35,7 +35,7 @@ describe('CreateProduct', () => {
     const mockProductData: CreateProductDto = {
       name: 'Test Product',
       productToken: 'test-product-token',
-      price: 100.0,
+      price: '100.0',
       stock: 10,
     };
 
@@ -61,7 +61,7 @@ describe('CreateProduct', () => {
     const mockProductData: CreateProductDto = {
       name: 'Test Product',
       productToken: 'test-product-token',
-      price: 100.0,
+      price: '100.0',
       stock: 10,
     };
 

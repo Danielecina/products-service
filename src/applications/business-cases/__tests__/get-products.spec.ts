@@ -9,7 +9,7 @@ const mockProductData: ProductDto = {
   id: 1,
   name: 'Test Product',
   productToken: 'test-product-token',
-  price: 100.0,
+  price: '100.0',
   stock: 10,
 };
 

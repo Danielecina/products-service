@@ -15,9 +15,6 @@ import { DeleteProduct } from './applications/business-cases/delete-product';
 import { GetProducts } from './applications/business-cases/get-products';
 import { SequelizeModule } from '@nestjs/sequelize';
 
-console.log('DB_HOST', process.env.DB_HOST);
-console.log('DB_PORT', process.env.DB_PORT);
-
 @Module({
   imports: [
     ConfigModule.forRoot(),

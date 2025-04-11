@@ -11,7 +11,7 @@ describe('UpdateProductStock', () => {
     id: 1,
     productToken: 'test-product-token',
     name: 'Test Product',
-    price: 100.0,
+    price: '100.0',
     stock: 10,
   };
 
@@ -34,7 +34,7 @@ describe('UpdateProductStock', () => {
             toJSON: jest.fn().mockReturnValue(updatedProduct),
           });
         }),
-        update: jest.fn(),
+        update: jest.fn().mockReturnValue([1]),
       },
     };
 
@@ -71,15 +71,17 @@ describe('UpdateProductStock', () => {
     );
 
     await expect(updateProduct.execute(1, 10)).rejects.toThrow(
-      'Failed to update product stock',
+      UpdateProductStock.ERROR_TYPE.PRODUCT_UPDATE_FAILED,
     );
   });
 
   test('expect correct error when findOne not found the product updated', async () => {
-    ProductEntityMock.useValue.findOne.mockResolvedValue(null);
+    ProductEntityMock.useValue.findOne.mockRejectedValue(
+      UpdateProductStock.ERROR_TYPE.PRODUCT_RETRIEVE_AFTER_UPDATE_FAILED,
+    );
 
     await expect(updateProduct.execute(1, 10)).rejects.toThrow(
-      'Failed to retrieve product updated',
+      UpdateProductStock.ERROR_TYPE.PRODUCT_RETRIEVE_AFTER_UPDATE_FAILED,
     );
   });
 });
